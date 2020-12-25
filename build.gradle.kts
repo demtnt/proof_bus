@@ -2,6 +2,8 @@ plugins {
     java
     id("org.springframework.boot") version "2.4.1"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    id("org.openapi.generator") version "5.0.0"
+    idea
 }
 
 group = "com.example"
@@ -15,7 +17,13 @@ java {
 
 sourceSets {
     main {
-        java.srcDir("src/core/java")
+        java.srcDirs("src/main/java", "src/main/java-generated")
+    }
+}
+
+idea {
+    module {
+        generatedSourceDirs.add(file("src/main/java-generated"))
     }
 }
 
@@ -33,8 +41,19 @@ repositories {
     mavenCentral()
 }
 
+val springfoxVersion by extra("2.9.2")
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+
+//    SpringFox dependencies
+    implementation("io.springfox:springfox-swagger2:$springfoxVersion")
+    implementation("io.springfox:springfox-swagger-ui:$springfoxVersion")
+
+    implementation("org.openapitools:jackson-databind-nullable:0.2.1")
+//    <!-- Bean Validation API support -->
+    implementation("javax.validation:validation-api")
+    implementation("org.springframework.data:spring-data-commons")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
@@ -42,6 +61,43 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
+
 //test {
 //    useJUnitPlatform()
 //}
+
+tasks {
+    getByName<Delete>("clean") {
+        delete.add("$rootDir/src/main/java-generated/com")
+    }
+
+    getByName("compileJava") {
+        dependsOn(getByName("openApiGenerate"))
+    }
+}
+
+openApiValidate {
+    inputSpec.set("$rootDir/src/main/resources/api.yaml")
+}
+
+openApiGenerate {
+
+    verbose.set(false)
+    inputSpec.set("$rootDir/src/main/resources/api.yaml")
+    outputDir.set("$rootDir")
+    configOptions.putAll(
+            mapOf(
+                    "sourceFolder" to "src/main/java-generated",
+                    "interfaceOnly" to "true",
+                    "dateLibrary" to "java8"
+            )
+    )
+    generatorName.set("spring")
+    modelPackage.set("com.example.dt.model")
+    apiPackage.set("com.example.dt.api")
+    supportingFilesConstrainedTo.add("ApiUtil.java")
+    globalProperties.putAll(mapOf(
+            "apis" to "",
+            "models" to ""
+    ))
+}

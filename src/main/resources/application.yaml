@@ -1,2 +1,12 @@
 server:
   port: 8765
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /api-docs
+
+openapi:
+  dwarfTicket:
+    "base-path": /

@@ -1,0 +1,26 @@
+openapi: "3.0.3"
+info:
+  version: 0.0.1
+  title: Dwarf ticket
+  description: New service for travel agencies – draft ticket price
+  license:
+    name: No license
+
+servers:
+  - url: http://localhost:8765/
+
+paths:
+  /ping:
+    get:
+      summary: Ping-pong
+      description: |
+            Ping - pong
+      operationId: ping
+      responses:
+        '200':
+          description: Pong with current time mills
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: 'pong 123456789012'
