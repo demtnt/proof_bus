@@ -1,3 +1,9 @@
+
+VATpercents: 21
+basePrice: 10
+childDiscountPercent: 50
+luggageMultiplierPercent: 30
+
 server:
   port: 8765
 

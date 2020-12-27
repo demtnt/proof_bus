@@ -1,0 +1,17 @@
+### Send POST
+POST http://localhost:8765/draftTicket
+Content-Type: application/json
+
+{
+  "routeName": "Abc",
+  "passengerList": [
+    {
+      "type": "adult",
+      "luggage": 3
+    },
+    {
+      "type": "child",
+      "luggage": 1
+    }
+  ]
+}

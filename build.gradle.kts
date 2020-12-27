@@ -35,6 +35,9 @@ configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
     }
+    testCompileOnly {
+        extendsFrom(configurations.testAnnotationProcessor.get())
+    }
 }
 
 repositories {
@@ -58,13 +61,10 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
-
-
-//test {
-//    useJUnitPlatform()
-//}
 
 tasks {
     getByName<Delete>("clean") {
@@ -73,6 +73,13 @@ tasks {
 
     getByName("compileJava") {
         dependsOn(getByName("openApiGenerate"))
+    }
+
+    named<Test>("test") {
+        useJUnitPlatform()
+
+//        testLogging.setShowStandardStreams(true)
+//        testLogging.setExceptionFormat(org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL)
     }
 }
 

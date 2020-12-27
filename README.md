@@ -5,6 +5,8 @@ Proof IT task
 `gradlew classes`
 #### Run
 `gradlew bootRun`
+#### Run JUnit tests
+`gradlew clean test`
 #### Try manually
 You can run scripts manually from  `src/test/resources/*.http`
 #### Try with UI

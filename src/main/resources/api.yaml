@@ -24,3 +24,110 @@ paths:
               schema:
                 type: string
               example: 'pong 123456789012'
+  /draftTicket:
+    post:
+      summary: Calculate draft price for a ticket
+      operationId: calculate
+      requestBody:
+        $ref: '#/components/requestBodies/draftPriceCalculationRB'
+      responses:
+        '200':
+          $ref: '#/components/responses/draftResponse'
+
+components:
+  schemas:
+    passengerType:
+      type: string
+      description: Type of passenger
+      enum:
+        - adult
+        - child
+      example: 'adult'
+    passenger:
+      type: object
+      required:
+        - type
+        - luggage
+      properties:
+        type:
+          $ref: '#/components/schemas/passengerType'
+        luggage:
+          type: integer
+          format: int32
+          minimum: 0
+          default: 0
+          example: 2
+    passengersList:
+      type: array
+      minItems: 1
+      items:
+        $ref: '#/components/schemas/passenger'
+    draftLine:
+      type: object
+      properties:
+        basePrice:
+          type: number
+          example: 9.99
+        vATPercents:
+          type: number
+          example: 21
+        passengerType:
+          $ref: '#/components/schemas/passengerType'
+        luggageCount:
+          type: integer
+          example: 2
+        passengerPriceTotal:
+          type: number
+          example: 5.67
+        luggagePriceTotal:
+          type: number
+          example: 3.21
+
+    draftTicket:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 12.34
+        draftLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/draftLine'
+    draftPriceCalculationRequest:
+      type: object
+      required:
+        - routeName
+        - passengerList
+      properties:
+        routeName:
+          type: string
+          minLength: 1
+        passengerList:
+          $ref: '#/components/schemas/passengersList'
+
+
+  requestBodies:
+    draftPriceCalculationRB:
+      description: |
+        JSON request body for draft price calculation request message
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/draftPriceCalculationRequest'
+    passengerList:
+      description: Passengers list for ticket
+      content:
+        'application/json':
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/passenger'
+
+  responses:
+    draftResponse:
+      description: Calculation result
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/draftTicket'
