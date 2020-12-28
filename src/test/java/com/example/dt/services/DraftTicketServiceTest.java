@@ -5,6 +5,7 @@ import com.example.dt.model.DraftPriceCalculationRequest;
 import com.example.dt.model.Passenger;
 import com.example.dt.model.PassengerType;
 import com.example.dt.services.external.TaxServiceAccessor;
+import com.example.dt.services.external.TaxServiceUnavailableException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -90,6 +91,15 @@ class DraftTicketServiceTest {
     }
 
     @Test
+    void calculate_NO_TAX_SERVICE_AVAILABLE() {
+        when(taxServiceAccessor.getCurrentVATWithCircuitBreaker()).thenThrow(new TaxServiceUnavailableException());
+
+        final var draftPriceCalculationRequest = mock(DraftPriceCalculationRequest.class);
+        draftPriceCalculationRequest.setRouteName(System.currentTimeMillis() + "");
+        assertThrows(TaxServiceUnavailableException.class, () -> subject.calculate(draftPriceCalculationRequest));
+    }
+
+    @Test
     void calculate_NO_BASE_PRICE_FOUND() {
         when(basePriceRepository.getBasePriceByRoute(anyString())).thenReturn(Optional.empty());
 
@@ -104,7 +114,7 @@ class DraftTicketServiceTest {
     @Test
     void calculate() {
         final var expectedVAT = BigDecimal.valueOf(123);
-        when(taxServiceAccessor.getCurrentVAT()).thenReturn(expectedVAT);
+        when(taxServiceAccessor.getCurrentVATWithCircuitBreaker()).thenReturn(expectedVAT);
         final var expectedBasePrice = Optional.of(BigDecimal.valueOf(321));
         when(basePriceRepository.getBasePriceByRoute(anyString())).thenReturn(expectedBasePrice);
 
@@ -147,6 +157,7 @@ class DraftTicketServiceTest {
 
         assertThat(draftLine.getBasePrice(), Matchers.comparesEqualTo(inputBasePrice));
         assertThat(draftLine.getvATPercents(), Matchers.comparesEqualTo(inputCurrentVAT));
+        assertThat(draftLine.getChildDiscountPercents(), Matchers.comparesEqualTo(BigDecimal.valueOf(55)));
         assertEquals(PassengerType.CHILD, draftLine.getPassengerType());
         assertThat(draftLine.getPassengerPriceTotal(), Matchers.comparesEqualTo(BigDecimal.valueOf(111)));
         assertEquals(55, draftLine.getLuggageCount());

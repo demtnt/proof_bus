@@ -26,7 +26,7 @@ public class DraftTicketService {
 
     public DraftTicket calculate(DraftPriceCalculationRequest draftPriceCalculationRequest) {
 
-        final var currentVAT = taxServiceAccessor.getCurrentVAT();
+        final var currentVAT = taxServiceAccessor.getCurrentVATWithCircuitBreaker();
         final var basePrice = basePriceRepository.getBasePriceByRoute(draftPriceCalculationRequest.getRouteName())
                 .orElseThrow(() -> new UnknownRouteException("draftPriceCalculationRequest.getRouteName()"));
 
@@ -53,6 +53,7 @@ public class DraftTicketService {
 
         draftLine.setBasePrice(basePrice);
         draftLine.setvATPercents(currentVAT);
+        draftLine.setChildDiscountPercents(childDiscountPercent);
         draftLine.setPassengerType(passenger.getType());
         draftLine.setPassengerPriceTotal(applyVAT(priceByAge(passenger, basePrice), currentVAT));
         draftLine.setLuggageCount(passenger.getLuggage());

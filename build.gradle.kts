@@ -45,6 +45,8 @@ repositories {
 }
 
 val springfoxVersion by extra("2.9.2")
+//val springCloudVersion by extra("Hoxton.SR1")
+val springCloudVersion by extra("2020.0.0")
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -57,6 +59,9 @@ dependencies {
 //    <!-- Bean Validation API support -->
     implementation("javax.validation:validation-api")
     implementation("org.springframework.data:spring-data-commons")
+
+    // Circuit breaker
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
@@ -107,4 +112,10 @@ openApiGenerate {
             "apis" to "",
             "models" to ""
     ))
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    }
 }
