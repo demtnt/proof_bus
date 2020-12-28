@@ -71,6 +71,9 @@ components:
         vATPercents:
           type: number
           example: 21
+        childDiscountPercents:
+          type: number
+          example: 40
         passengerType:
           $ref: '#/components/schemas/passengerType'
         luggageCount:
